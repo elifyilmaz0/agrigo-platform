@@ -16,6 +16,11 @@ import type {
   MemoryCategory,
   MemoryConfidence,
 } from '../../../types/farmer.ts'
+import {
+  readAiMemorySessionForItems,
+  upsertAiMemorySessionEntry,
+  type MemoryReviewStatus,
+} from '../../../state/aiMemorySession.ts'
 import { formatRelativeTime } from '../../../utils/formatTimelineDate.ts'
 import EmptyState from '../../shared/EmptyState.tsx'
 import InfoTooltip from '../../shared/InfoTooltip.tsx'
@@ -31,13 +36,6 @@ type AIMemoryCardProps = {
   farmer: Farmer
   highlightMemoryId?: string | null
 }
-
-type MemoryReviewStatus =
-  | 'pending'
-  | 'approved'
-  | 'rejected'
-  | 'stale'
-  | 'edited'
 
 const confidencePercent: Record<MemoryConfidence, number> = {
   high: 88,
@@ -145,7 +143,6 @@ function MemoryItemCard({
   const [showSources, setShowSources] = useState(false)
   const [draftValue, setDraftValue] = useState(extractedValue)
   const [saveError, setSaveError] = useState(false)
-  const { showToast } = useFarmerToast()
 
   useEffect(() => {
     if (isEditing) {
@@ -364,10 +361,7 @@ function MemoryItemCard({
         <div className="flex flex-wrap gap-1.5 border-t border-gray-100 bg-gray-50/80 px-3 py-2.5">
           <button
             type="button"
-            onClick={() => {
-              onStatusChange('approved')
-              showToast('AI hafızası onaylandı')
-            }}
+            onClick={() => onStatusChange('approved')}
             className="f360-focus inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-white px-2 py-1 text-[11px] font-medium text-emerald-700 hover:bg-emerald-50"
           >
             <Check className="h-3 w-3" aria-hidden="true" />
@@ -383,10 +377,7 @@ function MemoryItemCard({
           </button>
           <button
             type="button"
-            onClick={() => {
-              onStatusChange('rejected')
-              showToast('AI hafızası reddedildi')
-            }}
+            onClick={() => onStatusChange('rejected')}
             className="f360-focus inline-flex items-center gap-1 rounded-md border border-red-200 bg-white px-2 py-1 text-[11px] font-medium text-red-700 hover:bg-red-50"
           >
             <X className="h-3 w-3" aria-hidden="true" />
@@ -394,10 +385,7 @@ function MemoryItemCard({
           </button>
           <button
             type="button"
-            onClick={() => {
-              onStatusChange('stale')
-              showToast('AI hafızası eskimiş olarak işaretlendi', 'info')
-            }}
+            onClick={() => onStatusChange('stale')}
             className="f360-focus inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-100"
           >
             Eskimiş
@@ -423,10 +411,53 @@ export default function AIMemoryCard({
 }: AIMemoryCardProps) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [extractedOverrides, setExtractedOverrides] = useState<Record<string, string>>(
-    {},
+    () =>
+      readAiMemorySessionForItems(
+        farmer.id,
+        items.map((item) => item.id),
+      ).extractedOverrides,
   )
-  const [statusById, setStatusById] = useState<Record<string, MemoryReviewStatus>>({})
+  const [statusById, setStatusById] = useState<Record<string, MemoryReviewStatus>>(
+    () =>
+      readAiMemorySessionForItems(
+        farmer.id,
+        items.map((item) => item.id),
+      ).statusById,
+  )
   const { showToast } = useFarmerToast()
+  const memoryIdsKey = items.map((item) => item.id).join('|')
+
+  useEffect(() => {
+    const memoryIds = memoryIdsKey ? memoryIdsKey.split('|') : []
+    const session = readAiMemorySessionForItems(farmer.id, memoryIds)
+    setExtractedOverrides(session.extractedOverrides)
+    setStatusById(session.statusById)
+    setEditingId(null)
+  }, [farmer.id, memoryIdsKey])
+
+  const persistExtractedValue = (memoryId: string, value: string) => {
+    upsertAiMemorySessionEntry(farmer.id, memoryId, {
+      extractedValue: value,
+      status: 'edited',
+    })
+    setExtractedOverrides((prev) => ({ ...prev, [memoryId]: value }))
+    setStatusById((prev) => ({ ...prev, [memoryId]: 'edited' }))
+    setEditingId(null)
+    showToast('AI hafızası güncellendi')
+  }
+
+  const persistStatus = (memoryId: string, nextStatus: MemoryReviewStatus) => {
+    upsertAiMemorySessionEntry(farmer.id, memoryId, { status: nextStatus })
+    setStatusById((prev) => ({ ...prev, [memoryId]: nextStatus }))
+
+    if (nextStatus === 'approved') {
+      showToast('AI hafızası onaylandı')
+    } else if (nextStatus === 'rejected') {
+      showToast('AI hafızası reddedildi')
+    } else if (nextStatus === 'stale') {
+      showToast('AI hafızası eskimiş olarak işaretlendi', 'info')
+    }
+  }
 
   return (
     <article
@@ -468,15 +499,8 @@ export default function AIMemoryCard({
               highlighted={highlightMemoryId === item.id}
               onStartEdit={() => setEditingId(item.id)}
               onCancelEdit={() => setEditingId(null)}
-              onSaveEdit={(value) => {
-                setExtractedOverrides((prev) => ({ ...prev, [item.id]: value }))
-                setStatusById((prev) => ({ ...prev, [item.id]: 'edited' }))
-                setEditingId(null)
-                showToast('AI hafızası güncellendi')
-              }}
-              onStatusChange={(nextStatus) =>
-                setStatusById((prev) => ({ ...prev, [item.id]: nextStatus }))
-              }
+              onSaveEdit={(value) => persistExtractedValue(item.id, value)}
+              onStatusChange={(nextStatus) => persistStatus(item.id, nextStatus)}
             />
           ))}
         </ul>
