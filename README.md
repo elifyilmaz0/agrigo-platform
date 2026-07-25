@@ -1,32 +1,99 @@
-# React + TypeScript + Vite
+# AgriGO Farmer360 MVP
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Overview
 
-Currently, two official plugins are available:
+AgriGO Farmer360 is an AI-powered Farmer CRM (Customer Relationship Management) MVP developed to centralize farmer information, monitor field activities, organize AI-assisted insights, and support operational decision making.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This repository contains the Release Candidate (RC) version prepared for internal manager demonstration.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Current Scope
 
-## Expanding the Oxlint configuration
+The current release candidate includes the Farmer360 module only. Other platform modules are intentionally out of scope for this release.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+Implemented features:
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+- Farmer List
+- Farmer Search
+- Farmer Profile
+- Profile Completeness Analysis
+- Critical Missing Information Detection
+- Production Information
+- Land Information
+- Livestock Information
+- Beekeeping Information
+- Finance Information
+- Insurance Information
+- Consent Management
+- Documents
+- Conversations
+- Timeline
+- AI Memory
+- Notifications
+- Operations Center
+
+---
+
+## AI Workflow
+
+```text
+Conversation / Document / Image
+              │
+              ▼
+          Timeline
+              │
+              ▼
+       AI Inference
+              │
+              ▼
+          AI Memory
+              │
+              ▼
+        Human Review
+              │
+              ▼
+       Farmer Profile
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+---
+
+## Technology Stack
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Lucide React
+
+---
+
+## Quality Status
+
+Release Candidate Quality Checks:
+
+- ✅ TypeScript
+- ✅ Oxlint
+- ✅ Production Build
+- ✅ Manual QA
+
+---
+
+## Project Status
+
+**Farmer360 MVP v1.0 RC**
+
+Prepared for internal manager demonstration.
+
+---
+
+## Notes
+
+This MVP intentionally excludes:
+
+- Backend
+- Authentication
+- Database
+- Real API integrations
+
+All data is currently provided through mock datasets for demonstration purposes.
