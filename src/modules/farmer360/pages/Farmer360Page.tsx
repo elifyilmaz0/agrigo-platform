@@ -82,7 +82,7 @@ function scrollToId(elementId: string) {
 }
 
 function Farmer360PageContent() {
-  const [selectedFarmerId, setSelectedFarmerId] = useState<string>('1')
+  const [selectedFarmerId, setSelectedFarmerId] = useState<string | null>('1')
   const [searchTerm, setSearchTerm] = useState('')
   const [productionTypeFilter, setProductionTypeFilter] =
     useState<ProductionTypeFilterValue>('Tümü')
@@ -102,7 +102,10 @@ function Farmer360PageContent() {
   )
 
   const selectedFarmer = useMemo(
-    () => allFarmers.find((farmer) => farmer.id === selectedFarmerId) ?? null,
+    () =>
+      selectedFarmerId
+        ? (allFarmers.find((farmer) => farmer.id === selectedFarmerId) ?? null)
+        : null,
     [selectedFarmerId],
   )
 
@@ -114,6 +117,21 @@ function Farmer360PageContent() {
     () => (selectedFarmer ? getFarmerOperations(selectedFarmer).length : 0),
     [selectedFarmer],
   )
+
+  useEffect(() => {
+    const isStillVisible =
+      selectedFarmerId !== null &&
+      filteredFarmers.some((farmer) => farmer.id === selectedFarmerId)
+
+    if (isStillVisible) {
+      return
+    }
+
+    const nextSelectedFarmerId = filteredFarmers[0]?.id ?? null
+    if (nextSelectedFarmerId !== selectedFarmerId) {
+      setSelectedFarmerId(nextSelectedFarmerId)
+    }
+  }, [filteredFarmers, selectedFarmerId])
 
   useEffect(() => {
     setActiveTab('general')
