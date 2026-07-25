@@ -250,7 +250,10 @@ function Farmer360PageContent() {
             />
             <AISummary farmer={selectedFarmer} />
             <FarmerInsightsRow farmer={selectedFarmer} />
-            <MissingProfileSection key={selectedFarmer.id} farmer={selectedFarmer} />
+            <MissingProfileSection
+              key={`missing-profile-${selectedFarmer.id}`}
+              farmer={selectedFarmer}
+            />
             <FarmerTabs
               farmer={selectedFarmer}
               activeTab={activeTab}
@@ -260,7 +263,7 @@ function Farmer360PageContent() {
               onOpenDocumentHandled={handleOpenDocumentHandled}
             />
             <FarmerMemoryTimelineSection
-              key={selectedFarmer.id}
+              key={`memory-timeline-${selectedFarmer.id}`}
               farmer={selectedFarmer}
               highlightMemoryId={highlightMemoryId}
               navigation={timelineNavigation}
@@ -273,7 +276,7 @@ function Farmer360PageContent() {
               onSelectNotification={handleNotificationSelect}
             />
             <OperationsCenterDrawer
-              key={selectedFarmer.id}
+              key={`operations-${selectedFarmer.id}`}
               open={activeDrawer === 'operations'}
               farmer={selectedFarmer}
               initialFilter={operationsFilter}
