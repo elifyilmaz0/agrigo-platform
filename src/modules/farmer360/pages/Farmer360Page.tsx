@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import AISummary from '../components/farmer-detail/AISummary.tsx'
 import FarmerInsightsRow from '../components/farmer-detail/FarmerInsightsRow.tsx'
 import MissingProfileSection from '../components/farmer-detail/MissingProfileSection.tsx'
@@ -94,6 +94,7 @@ function Farmer360PageContent() {
   )
   const [highlightMemoryId, setHighlightMemoryId] = useState<string | null>(null)
   const [openDocumentId, setOpenDocumentId] = useState<string | null>(null)
+  const detailScrollRef = useRef<HTMLElement>(null)
 
   const filteredFarmers = useMemo(
     () => filterFarmers(searchTerm, productionTypeFilter),
@@ -120,6 +121,10 @@ function Farmer360PageContent() {
     setHighlightConversationId(null)
     setHighlightMemoryId(null)
     setOpenDocumentId(null)
+  }, [selectedFarmerId])
+
+  useEffect(() => {
+    detailScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }, [selectedFarmerId])
 
   useEffect(() => {
@@ -238,7 +243,10 @@ function Farmer360PageContent() {
         onSelectFarmer={setSelectedFarmerId}
       />
 
-      <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain scroll-smooth bg-gray-100 p-4 sm:p-6 xl:px-8">
+      <main
+        ref={detailScrollRef}
+        className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain scroll-smooth bg-gray-100 p-4 sm:p-6 xl:px-8"
+      >
         {selectedFarmer ? (
           <>
             <FarmerProfileHeader
