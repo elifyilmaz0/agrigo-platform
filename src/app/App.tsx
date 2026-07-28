@@ -6,15 +6,13 @@ import { adPaths } from '../modules/advertisement/paths.ts'
 import Farmer360Routes from './Farmer360Routes.tsx'
 import LegacyAdvertisementRedirect from './LegacyAdvertisementRedirect.tsx'
 import NotFoundPage from './NotFoundPage.tsx'
+import PlatformLandingPage from './PlatformLandingPage.tsx'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/"
-          element={<Navigate to={adPaths.dashboard} replace />}
-        />
+        <Route path="/" element={<PlatformLandingPage />} />
 
         <Route path="/farmer360/*" element={<Farmer360Routes />} />
 
